@@ -7,7 +7,7 @@ FOREIGN KEY (group_id) REFERENCES groups(id)
 CREATE TABLE groups (
 id INTEGER PRIMARY KEY,
 password INTEGER,
-people_num INTEGER DEFAULT 0,
+number_of_people INTEGER DEFAULT 0,
 flag INTEGER DEFAULT 1
 );
 
@@ -28,7 +28,7 @@ CREATE TABLE questions (
 id INTEGER PRIMARY KEY,
 question_group_id INTEGER,
 user_id INTEGER,
-test TEXT,
+text TEXT,
 FOREIGN KEY (question_group_id) REFERENCES question_groups(id),
 FOREIGN KEY (user_id) REFERENCES users(id)
 );
