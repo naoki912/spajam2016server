@@ -18,6 +18,7 @@ port = 8080
 db_name = 'spajam.db'
 FLAG_QUESTION = 'question'
 FLAG_COMING_OUT = 'coming_out'
+FLAG_NONE = None
 #=== end ===
 
 
@@ -110,41 +111,12 @@ def create_coming_out(group_id=''):
     return res
 
 
-@get('/state_group/latest/<group_id>')
-def state_group_latest_group_id_handler(group_id=''):
+@post('/create_none/<group_id>')
+def create_none(group_id=''):
     conn = sqlite3.connect(db_name)
     c = conn.cursor()
 
-    for i in c.execute('''SELECT id, flag FROM state_groups WHERE group_id=?''', (group_id, )):
-        print(i)
-        _list = i
-
-    body = json.dumps({"id": _list[0], "flag": _list[1]})
-    res = HTTPResponse(status=200, body=body)
-    res.set_header('Content-Type', 'application/json')
-    return res
-
-
-@get('/question/<state_group_id>')
-def return_question_list_handler(question_group_id=''):
-    # conn = sqlite3.connect(db_name)
-    # c = conn.cursor()
-    #
-    # c.execute('''select * from question_groups where id''', (question_group_id ,))
-    #
-    # body = json.dumps(c.fetchall())
-    # res = HTTPResponse(status=200, body=body)
-    # res.set_header('Content-Type', 'application/json')
-    # return res
-    return None
-
-
-@post('/question/<state_group_id>/<user_id>')
-def add_question_handler(state_group_id='', user_id=''):
-    conn = sqlite3.connect(db_name)
-    c = conn.cursor()
-
-    c.execute('''INSERT INTO ''')
+    c.execute('''INSERT INTO state_groups(group_id, flag) VALUES (?, ?)''', (group_id, FLAG_NONE))
 
     conn.commit()
     conn.close()
@@ -153,6 +125,84 @@ def add_question_handler(state_group_id='', user_id=''):
     return res
 
 
+@get('/state_group/latest/<group_id>')
+def state_group_latest_group_id_handler(group_id=''):
+    conn = sqlite3.connect(db_name)
+    c = conn.cursor()
+
+    _list = None
+
+    for i in c.execute('''SELECT id, flag FROM state_groups WHERE group_id=?''', (group_id, )):
+        _list = i
+
+    if _list == None:
+        body = json.dumps({"id": None, "flag": None})
+        res = HTTPResponse(status=200, body=body)
+        res.set_header('Content-Type', 'application/json')
+        return res
+
+    body = json.dumps({"id": _list[0], "flag": _list[1]})
+    res = HTTPResponse(status=200, body=body)
+    res.set_header('Content-Type', 'application/json')
+    return res
+
+
+@get('/question/<question_group_id>')
+def return_question_list_handler(question_group_id=''):
+    conn = sqlite3.connect(db_name)
+    c = conn.cursor()
+
+    c.execute('''SELECT text FROM questions WHERE question_group_id=?''', (question_group_id ,))
+
+    body = json.dumps({"question_texts": c.fetchall()})
+    res = HTTPResponse(status=200, body=body)
+    res.set_header('Content-Type', 'application/json')
+    return res
+
+
+@post('/question/<state_group_id>/<user_id>')
+def add_question_handler(state_group_id='', user_id=''):
+    question_text = request.params.get('question_text')
+
+    conn = sqlite3.connect(db_name)
+    c = conn.cursor()
+
+    c.execute('''INSERT INTO questions(question_group_id, user_id, text) VALUES (?, ?, ?)''', (state_group_id, user_id, question_text))
+
+    conn.commit()
+    conn.close()
+
+    res = HTTPResponse(status=200, body='')
+    return res
+
+
+@get('/coming_out/<coming_out_group_id>')
+def return_coming_out_list_handler(coming_out_group_id=''):
+    conn = sqlite3.connect(db_name)
+    c = conn.cursor()
+
+    c.execute('''SELECT text FROM coming_outs WHERE coming_out_group_id=?''', (coming_out_group_id ,))
+
+    body = json.dumps({"coming_out_texts": c.fetchall()})
+    res = HTTPResponse(status=200, body=body)
+    res.set_header('Content-Type', 'application/json')
+    return res
+
+
+@post('/coming_out/<state_group_id>/<user_id>')
+def add_coming_out_handler(state_group_id='', user_id=''):
+    coming_out_text = request.params.get('coming_out_text')
+
+    conn = sqlite3.connect(db_name)
+    c = conn.cursor()
+
+    c.execute('''INSERT INTO coming_outs(coming_out_group_id, user_id, text) VALUES (?, ?, ?)''', (state_group_id, user_id, coming_out_text))
+
+    conn.commit()
+    conn.close()
+
+    res = HTTPResponse(status=200, body='')
+    return res
 
     # そのユーザがgroupに含まれているか確認して、含まれていたらquestion_group_idを使ってquestionテーブルに追加する
 
