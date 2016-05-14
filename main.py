@@ -10,7 +10,6 @@ from bottle import get
 from bottle import post
 from bottle import put
 from bottle import delete
-from pymongo import MongoClient
 
 
 #=== settings ===
@@ -22,7 +21,7 @@ FLAG_COMING_OUT = 'coming_out'
 #=== end ===
 
 
-@get('/create_group')
+@post('/create_group')
 def create_group_handler():
     conn = sqlite3.connect(db_name)
     c = conn.cursor()
@@ -75,7 +74,7 @@ def join_group_handler(password=''):
     return res
 
 
-@get('/create_question/<group_id>')
+@post('/create_question/<group_id>')
 def create_question(group_id=''):
     conn = sqlite3.connect(db_name)
     c = conn.cursor()
@@ -93,7 +92,7 @@ def create_question(group_id=''):
     return res
 
 
-@get('/create_coming_out/<group_id>')
+@post('/create_coming_out/<group_id>')
 def create_coming_out(group_id=''):
     conn = sqlite3.connect(db_name)
     c = conn.cursor()
