@@ -10,7 +10,7 @@ from bottle import post
 
 
 #=== settings ===
-hostname = 'spajam.hnron.net'
+hostname = '127.0.0.1'
 port = 8080
 db_name = 'spajam.db'
 FLAG_QUESTION = 'question'
@@ -84,7 +84,7 @@ def create_question(group_id=''):
 
     c.execute('''INSERT INTO state_groups(group_id, flag) VALUES (?, ?)''', (group_id, FLAG_QUESTION))
     state_group_id = c.lastrowid
-    c.execute('''INSERT INTO question_groups(id) VALUES (?)''', (state_group_id, ))
+    c.execute('''INSERT INTO question_groups(id, group_id) VALUES (?, ?)''', (state_group_id, group_id))
 
     number_of_people = c.execute('''SELECT count(*) FROM users WHERE group_id=? ''', (group_id, )).fetchone()[0]
     c.execute('''UPDATE groups SET number_of_people = ? WHERE id = ?''', (number_of_people, group_id))
@@ -105,7 +105,7 @@ def create_coming_out(group_id=''):
 
     c.execute('''INSERT INTO state_groups(group_id, flag) VALUES (?, ?)''', (group_id, FLAG_COMING_OUT))
     state_group_id = c.lastrowid
-    c.execute('''INSERT INTO coming_out_groups(id) VALUES (?)''', (state_group_id, ))
+    c.execute('''INSERT INTO coming_out_groups(id, group_id) VALUES (?, ?)''', (state_group_id, group_id))
 
     number_of_people = c.execute('''SELECT count(*) FROM users WHERE group_id=? ''', (group_id, )).fetchone()[0]
     c.execute('''UPDATE groups SET number_of_people = ? WHERE id = ?''', (number_of_people, group_id))
