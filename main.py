@@ -42,6 +42,8 @@ def create_group_handler():
     c.execute('''insert into users(group_id) values (?) ''', (group_id, ))
     user_id = c.lastrowid
 
+    c.execute('''UPDATE groups SET number_of_people = (number_of_people + 1) WHERE id = ?''', (group_id, ))
+
     conn.commit()
     conn.close()
 
