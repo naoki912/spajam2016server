@@ -10,7 +10,7 @@ from bottle import post
 
 
 #=== settings ===
-hostname = '127.0.0.1'
+hostname = '0.0.0.0'
 port = 8080
 db_name = 'spajam.db'
 FLAG_QUESTION = 'question'
