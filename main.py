@@ -145,7 +145,8 @@ def state_group_latest_group_id_handler(group_id=''):
 
     if _list == None:
         body = json.dumps({"id": None, "flag": None})
-        res = HTTPResponse(status=200, body=body)
+        # 一時的にstatusを400に
+        res = HTTPResponse(status=400, body=body)
         res.set_header('Content-Type', 'application/json')
         return res
 
