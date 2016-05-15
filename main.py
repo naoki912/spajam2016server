@@ -1,4 +1,3 @@
-import sys
 import sqlite3
 import json
 from random import randint
@@ -8,8 +7,6 @@ from bottle import HTTPResponse
 from bottle import request
 from bottle import get
 from bottle import post
-from bottle import put
-from bottle import delete
 
 
 #=== settings ===
@@ -66,6 +63,9 @@ def join_group_handler(password=''):
     c.execute('''insert into users(group_id) VALUES (?)''', (group_id ,))
     user_id = c.lastrowid
 
+    # number_of_people = c.execute('''SELECT count(*) FROM users WHERE group_id=? ''', (group_id, )).fetchone()[0]
+    c.execute('''UPDATE groups SET number_of_people = (number_of_people + 1) WHERE id = ?''', (group_id, ))
+
     conn.commit()
     conn.close()
 
@@ -84,6 +84,9 @@ def create_question(group_id=''):
     state_group_id = c.lastrowid
     c.execute('''INSERT INTO question_groups(id) VALUES (?)''', (state_group_id, ))
 
+    number_of_people = c.execute('''SELECT count(*) FROM users WHERE group_id=? ''', (group_id, )).fetchone()[0]
+    c.execute('''UPDATE groups SET number_of_people = ? WHERE id = ?''', (number_of_people, group_id))
+
     conn.commit()
     conn.close()
 
@@ -101,6 +104,9 @@ def create_coming_out(group_id=''):
     c.execute('''INSERT INTO state_groups(group_id, flag) VALUES (?, ?)''', (group_id, FLAG_COMING_OUT))
     state_group_id = c.lastrowid
     c.execute('''INSERT INTO coming_out_groups(id) VALUES (?)''', (state_group_id, ))
+
+    number_of_people = c.execute('''SELECT count(*) FROM users WHERE group_id=? ''', (group_id, )).fetchone()[0]
+    c.execute('''UPDATE groups SET number_of_people = ? WHERE id = ?''', (number_of_people, group_id))
 
     conn.commit()
     conn.close()
@@ -145,6 +151,34 @@ def state_group_latest_group_id_handler(group_id=''):
     res = HTTPResponse(status=200, body=body)
     res.set_header('Content-Type', 'application/json')
     return res
+
+
+@get('/state_group/input/<group_id>/<state_group_id>')
+def get_state_group_id(group_id='', state_group_id=''):
+    conn = sqlite3.connect(db_name)
+    c = conn.cursor()
+
+    _flag = c.execute('''SELECT flag FROM state_groups WHERE id=?''', (state_group_id, )).fetchone()[0]
+
+    if _flag == FLAG_QUESTION:
+        _now = c.execute('''SELECT count(*) FROM state_groups INNER JOIN questions on state_groups.id = questions.question_group_id''').fetchone()[0]
+        _all = c.execute('''SELECT number_of_people FROM groups WHERE id=?''', (group_id, )).fetchone()[0]
+        if _now >= _all:
+            body = json.dumps({"boolean": 1})
+        else:
+            body = json.dumps({"boolean": 0})
+        return HTTPResponse(status=200, body=body)
+    elif _flag == FLAG_COMING_OUT:
+        _now = c.execute('''SELECT count(*) FROM state_groups INNER JOIN coming_outs on state_groups.id = coming_outs.coming_out_group_id''').fetchone()[0]
+        _all = c.execute('''SELECT number_of_people FROM groups WHERE id=?''', (group_id, )).fetchone()[0]
+        if _now >= _all:
+            body = json.dumps({"boolean": 1})
+        else:
+            body = json.dumps({"boolean": 0})
+        return HTTPResponse(status=200, body=body)
+    else:
+        res = HTTPResponse(status=200, body='')
+        return res
 
 
 @get('/question/<question_group_id>')
@@ -204,43 +238,20 @@ def add_coming_out_handler(state_group_id='', user_id=''):
     res = HTTPResponse(status=200, body='')
     return res
 
-    # そのユーザがgroupに含まれているか確認して、含まれていたらquestion_group_idを使ってquestionテーブルに追加する
 
-    return None
+@get('/group/users/<group_id>')
+def return_number_of_people(group_id):
+    conn = sqlite3.connect(db_name)
+    c = conn.cursor()
 
+    number_of_people = c.execute('''SELECT number_of_people FROM groups WHERE id=?''', (group_id, )).fetchone()[0]
 
-# @route(api_v1, method='GET')
-# def create_group():
-#     # json処理
-#     body = json.dumps({"name": "user", "id": "111"})
-#     res = HTTPResponse(status=200, body=body)
-#     res.set_header('Content-Type', 'application/json')
-#     return res
-#
-# @route(api_v1)
-# @route('create_group/<group_id>', method='POST')
-# def index(group_id=None):
-#     return 'ok'
-#
-# @route('/')
-# def hoge():
-#     return 'a'
+    return HTTPResponse(status=200, body=json.dumps({"number_of_people": number_of_people}))
 
 
-# conn = sqlite3.connect('spajam.db')
-# c = conn.cursor()
-# c.execute()
 
-#--- mongodb ---
-# client = MongoClient()
-# db = client.testdb
-#--- end ---
+#####
+# そのユーザがgroupに含まれているか確認して、含まれていたらquestion_group_idを使ってquestionテーブルに追加する
 
-# @route(api_dir + '/json', 'GET')
-# def index():
-#     body = json.dumps({"name": "user", "id": "111"})
-#     res = HTTPResponse(status=200, body=body)
-#     res.set_header('Content-Type', 'application/json')
-#     return res
 
 run(host=hostname, port=port)
