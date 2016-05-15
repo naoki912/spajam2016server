@@ -138,7 +138,7 @@ def state_group_latest_group_id_handler(group_id=''):
     conn = sqlite3.connect(db_name)
     c = conn.cursor()
 
-    # _list = None
+    _list = None
 
     for i in c.execute('''SELECT id, flag FROM state_groups WHERE group_id=?''', (group_id, )):
         _list = i
