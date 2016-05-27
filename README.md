@@ -1,3 +1,5 @@
+ToDo 設計書のやつそのままコピーしただけなので綺麗に書き直す
+
 #### データベース設計
 parties(id, password)
 members(id, party_id)
