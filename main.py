@@ -170,7 +170,10 @@ def get_state_group_id(group_id='', state_group_id=''):
             body = json.dumps({"boolean": 1})
         else:
             body = json.dumps({"boolean": 0})
-        return HTTPResponse(status=200, body=body)
+        res = HTTPResponse()
+        res.set_header('Content-Type', 'application/json')
+        return res
+        #return HTTPResponse(status=200, body=body)
     elif _flag == FLAG_COMING_OUT:
         _now = c.execute('''SELECT count(*) FROM state_groups INNER JOIN coming_outs on state_groups.id = coming_outs.coming_out_group_id''').fetchone()[0]
         _all = c.execute('''SELECT number_of_people FROM groups WHERE id=?''', (group_id, )).fetchone()[0]
@@ -178,7 +181,10 @@ def get_state_group_id(group_id='', state_group_id=''):
             body = json.dumps({"boolean": 1})
         else:
             body = json.dumps({"boolean": 0})
-        return HTTPResponse(status=200, body=body)
+        res = HTTPResponse()
+        res.set_header('Content-Type', 'application/json')
+        return res
+        #return HTTPResponse(status=200, body=body)
     else:
         res = HTTPResponse(status=200, body='')
         return res
@@ -220,7 +226,12 @@ def return_coming_out_list_handler(coming_out_group_id=''):
 
     c.execute('''SELECT text FROM coming_outs WHERE coming_out_group_id=?''', (coming_out_group_id ,))
 
-    body = json.dumps({"coming_out_texts": c.fetchall()})
+    _list = []
+    for i in c.fetchall():
+        _list.append(i[0])
+
+    #body = json.dumps({"coming_out_texts": c.fetchall()})
+    body = json.dumps({"coming_out_texts": _list})
     res = HTTPResponse(status=200, body=body)
     res.set_header('Content-Type', 'application/json')
     return res
