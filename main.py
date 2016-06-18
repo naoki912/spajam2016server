@@ -165,7 +165,7 @@ def get_state_group_id(group_id='', state_group_id=''):
 
     if _flag == FLAG_QUESTION:
         _now = c.execute('''SELECT count(*) FROM state_groups INNER JOIN questions on state_groups.id = questions.question_group_id
-                            WHERE state_groups.id=?''', (state_group_id)).fetchone()[0]
+                            WHERE state_groups.id=?''', (state_group_id, )).fetchone()[0]
         _all = c.execute('''SELECT number_of_people FROM groups WHERE id=?''', (group_id, )).fetchone()[0]
         if _now >= _all:
             body = json.dumps({"boolean": 1})
