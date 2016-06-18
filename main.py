@@ -199,7 +199,12 @@ def return_question_list_handler(question_group_id=''):
 
     c.execute('''SELECT text FROM questions WHERE question_group_id=?''', (question_group_id ,))
 
-    body = json.dumps({"question_texts": c.fetchall()})
+    _list = []
+    for i in c.fetchall():
+        _list.append(i[0])
+
+    #body = json.dumps({"question_texts": c.fetchall()})
+    body = json.dumps({"question_texts": _list})
     res = HTTPResponse(status=200, body=body)
     res.set_header('Content-Type', 'application/json')
     return res
@@ -207,7 +212,7 @@ def return_question_list_handler(question_group_id=''):
 
 @post('/question/<state_group_id>/<user_id>')
 def add_question_handler(state_group_id='', user_id=''):
-    question_text = request.params.get('question_text')
+    question_text = request.params.decode().get('question_text')
 
     conn = sqlite3.connect(db_name)
     c = conn.cursor()
@@ -241,7 +246,7 @@ def return_coming_out_list_handler(coming_out_group_id=''):
 
 @post('/coming_out/<state_group_id>/<user_id>')
 def add_coming_out_handler(state_group_id='', user_id=''):
-    coming_out_text = request.params.get('coming_out_text')
+    coming_out_text = request.params.decode().get('coming_out_text')
 
     conn = sqlite3.connect(db_name)
     c = conn.cursor()
