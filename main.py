@@ -170,7 +170,7 @@ def get_state_group_id(group_id='', state_group_id=''):
             body = json.dumps({"boolean": 1})
         else:
             body = json.dumps({"boolean": 0})
-        res = HTTPResponse()
+        res = HTTPResponse(status=200, body=body)
         res.set_header('Content-Type', 'application/json')
         return res
         #return HTTPResponse(status=200, body=body)
@@ -181,7 +181,7 @@ def get_state_group_id(group_id='', state_group_id=''):
             body = json.dumps({"boolean": 1})
         else:
             body = json.dumps({"boolean": 0})
-        res = HTTPResponse()
+        res = HTTPResponse(status=200, body=body)
         res.set_header('Content-Type', 'application/json')
         return res
         #return HTTPResponse(status=200, body=body)
