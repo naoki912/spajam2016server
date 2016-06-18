@@ -164,7 +164,8 @@ def get_state_group_id(group_id='', state_group_id=''):
     _flag = c.execute('''SELECT flag FROM state_groups WHERE id=?''', (state_group_id, )).fetchone()[0]
 
     if _flag == FLAG_QUESTION:
-        _now = c.execute('''SELECT count(*) FROM state_groups INNER JOIN questions on state_groups.id = questions.question_group_id''').fetchone()[0]
+        _now = c.execute('''SELECT count(*) FROM state_groups INNER JOIN questions on state_groups.id = questions.question_group_id
+                            WHERE state_groups.id=?''', (state_group_id)).fetchone()[0]
         _all = c.execute('''SELECT number_of_people FROM groups WHERE id=?''', (group_id, )).fetchone()[0]
         if _now >= _all:
             body = json.dumps({"boolean": 1})
@@ -175,7 +176,8 @@ def get_state_group_id(group_id='', state_group_id=''):
         return res
         #return HTTPResponse(status=200, body=body)
     elif _flag == FLAG_COMING_OUT:
-        _now = c.execute('''SELECT count(*) FROM state_groups INNER JOIN coming_outs on state_groups.id = coming_outs.coming_out_group_id''').fetchone()[0]
+        _now = c.execute('''SELECT count(*) FROM state_groups INNER JOIN coming_outs on state_groups.id = coming_outs.coming_out_group_id
+                            WHERE state_groups.id=?''', (state_group_id, )).fetchone()[0]
         _all = c.execute('''SELECT number_of_people FROM groups WHERE id=?''', (group_id, )).fetchone()[0]
         if _now >= _all:
             body = json.dumps({"boolean": 1})
